@@ -2,35 +2,35 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define TAMANO_LINEA 100  
+#define MAX_LINEA 100
 
-typedef struct TNodo {
-    char* linea;
-    struct TNodo* siguiente;
-} TNodo;
+typedef struct Nodo {
+    char* produccion;
+    struct Nodo* siguiente;
+} Nodo;
 
-TNodo* crearNodo(char* linea) {
-    TNodo* nuevo = (TNodo*)malloc(sizeof(TNodo));
-    nuevo->linea = strdup(linea); 
-    nuevo->siguiente = NULL;
-    return nuevo;
+Nodo* crearNodo(char* produccion) {
+    Nodo* nuevoNodo = (Nodo*)malloc(sizeof(Nodo));
+    nuevoNodo->produccion = strdup(produccion);
+    nuevoNodo->siguiente = NULL;
+    return nuevoNodo;
 }
 
-TNodo* leerArchivo(const char* nombre) {
-    FILE* archivo = fopen(nombre, "r");
+Nodo* leerArchivoALista(const char* nombreArchivo) {
+    FILE* archivo = fopen(nombreArchivo, "r");
     if (archivo == NULL) {
-        printf("Error\n");
+        fprintf(stderr, "Error al abrir el archivo '%s'.\n", nombreArchivo);
         return NULL;
     }
 
-    TNodo* cabeza = NULL;
-    TNodo* cola = NULL;
-    char buffer[TAMANO_LINEA];
+    Nodo* cabeza = NULL;
+    Nodo* cola = NULL;
+    char buffer[MAX_LINEA];
 
-    while (fgets(buffer, TAMANO_LINEA, archivo)) {
-        buffer[strcspn(buffer, "\n")] = 0;  
+    while (fgets(buffer, MAX_LINEA, archivo)) {
+        buffer[strcspn(buffer, "\n")] = 0;
 
-        TNodo* nuevoNodo = crearNodo(buffer);
+        Nodo* nuevoNodo = crearNodo(buffer);
         if (cabeza == NULL) {
             cabeza = nuevoNodo;
             cola = nuevoNodo;
@@ -44,32 +44,34 @@ TNodo* leerArchivo(const char* nombre) {
     return cabeza;
 }
 
-void imprimirLista(TNodo* cabeza) {
-    TNodo* actual = cabeza;
+void imprimirLista(Nodo* cabeza) {
+    Nodo* actual = cabeza;
     while (actual != NULL) {
-        printf("%s\n", actual->linea);
+        printf("%s\n", actual->produccion);
         actual = actual->siguiente;
     }
 }
 
-void liberarLista(TNodo* cabeza) {
-    TNodo* actual = cabeza;
-    TNodo* siguiente = NULL;
+void liberarLista(Nodo* cabeza) {
+    Nodo* actual = cabeza;
     while (actual != NULL) {
-        siguiente = actual->siguiente;
-        free(actual->linea);  
-        free(actual);         
-        actual = siguiente;
+        Nodo* siguienteNodo = actual->siguiente;
+        free(actual->produccion);
+        free(actual);
+        actual = siguienteNodo;
     }
 }
 
 int main() {
-    const char* nombreArchivo = "tarea.txt";
-    TNodo* lista = leerArchivo(nombreArchivo);
+    const char* nombreArchivo = "gramatica.txt";
+    Nodo* lista = leerArchivoALista(nombreArchivo);
 
     if (lista != NULL) {
+        printf("Producciones leídas del archivo:\n");
         imprimirLista(lista);
-        liberarLista(lista); 
+        liberarLista(lista);
+    } else {
+        printf("No se leyeron producciones del archivo.\n");
     }
 
     return 0;
